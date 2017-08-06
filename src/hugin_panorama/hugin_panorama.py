@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 import os
-import rospy
+import glob
 import shutil
-import rospkg
 import subprocess
 import cv2
+import rospy
+import rospkg
 
 from sensor_msgs.msg import CompressedImage
 from cv_bridge import CvBridge
@@ -24,19 +25,13 @@ class HuginPanorama():
     self.publisher = rospy.Publisher('panorama/compressed', CompressedImage, queue_size=10)
 
     # Get the path to where input and output images for the panorama are stored
-    self.images_path = rospy.get_param('~images_path',self.default_images_path())
+    self.images_path = rospy.get_param('~images_path')
 
     # Create path if it does not exist
     if not os.path.exists(self.images_path):
         os.makedirs(self.images_path)
 
-  def default_images_path(self):
-    """By default use 'images/'folder in hugin_panorama package directory
-
-    This is where input and output images for the panorama are stored.
-    """
-    rospack = rospkg.RosPack()
-    return "%s/images/" % rospack.get_path('hugin_panorama')
+    rospy.loginfo('Using working directory: %s'% self.images_path)
 
   def stitch_callback(self, data):
     self.do_stitch()
@@ -44,7 +39,7 @@ class HuginPanorama():
 
   def reset_callback(self, data):
     rospy.loginfo('Clearing images waiting to be stitched.')
-    self.cleanup(all=True)
+    self.cleanup(delete_images=True)
     return []
 
   def get_image_filenames(self):
@@ -54,6 +49,11 @@ class HuginPanorama():
 
   def hugin_stitch(self):
     files = self.get_image_filenames()
+
+    if files == None or files == "":
+      rospy.logerr("Did not find any images to stitch in: %s" % self.images_path)
+      return
+
     rospy.loginfo("Stitching files: %s" % files)
     
     # create project file
@@ -73,33 +73,42 @@ class HuginPanorama():
     # compress
     self.bash_exec('convert output.tif output.png')
 
-    rospy.loginfo('Panorama saved to: %soutput.png' % self.images_path)
+    output_file = os.path.join(self.images_path, 'output.png')
+    if not os.path.isfile(output_file):
+      rospy.logerr('Hugin failed to create a panorama.')
+      return
+
+    rospy.loginfo('Panorama saved to: %s/output.png' % self.images_path)
+
+    self.publish_pano()
+    rospy.loginfo('Finished.')
 
   def publish_pano(self):
-    img = load_image(self.images_path + 'output.png')
+    img = load_image(os.path.join(self.images_path, 'output.png'))
     compressed_image = CvBridge().cv2_to_compressed_imgmsg(img)
     self.publisher.publish(compressed_image)
 
-  def cleanup(self, all=False):
-    if all:
-      # Delete and recreate the images_path
-      shutil.rmtree(self.images_path)
-      os.makedirs(self.images_path)
-    else:
-      # Deletes previous hugin project files and output only
-      if os.path.isfile(self.images_path + 'output.tif'):
-        os.remove(self.images_path + 'output.tif')
-      if os.path.isfile(self.images_path + 'output.png'):
-        os.remove(self.images_path + 'output.png')
-      if os.path.isfile(self.images_path + 'pano.pto'):
-        os.remove(self.images_path + 'pano.pto')
+  def cleanup(self, delete_images=False):
+    # Hugin project files and output images
+    files_to_be_deleted = ['output.tif', 'output.png', 'pano.pto']
+
+    # Optionally delete images
+    if delete_images:
+      image_types = ('*.png', '*.jpg', '*.gif')
+      for file_type in image_types:
+        path = os.path.join(self.images_path,file_type)
+        files_to_be_deleted.extend(glob.glob(path))
+
+    # Do file deletion
+    for file in files_to_be_deleted:
+      file_to_be_deleted = os.path.join(self.images_path, file)
+      if os.path.isfile(file_to_be_deleted):
+        os.remove(file_to_be_deleted)
 
   def do_stitch(self):
     rospy.loginfo('Stitching panorama...')
     self.cleanup()
     self.hugin_stitch()
-    self.publish_pano()
-    rospy.loginfo('Finished.')
 
   def bash_exec(self, cmd):
     sp = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=self.images_path)

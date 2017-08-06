@@ -1,36 +1,36 @@
 <launch>
   <env name="ROSCONSOLE_FORMAT" value="[${severity}][${thread}][${node}/${function}:${line}]: ${message}"/>
 
+  <arg name="image1" default="image_topic1"/>
+  <arg name="image2" default="image_topic2"/>
+  <arg name="images_path" default="$(find hugin_panorama)images"/>
+
   <group ns="hugin_panorama">
 
     <!-- Camera image_saver Node #1 -->
     <node pkg="image_view" type="image_saver" name="image_saver1" output="screen">
-      <param name="filename_format" value="$(find hugin_panorama)/images/cam1_%04i.png"/>
+      <param name="filename_format" value="$(arg images_path)/cam1_%04i.png"/>
       <param name="save_all_image" value="false"/>
       <!-- INPUT TOPICS -->
-      <remap from="image" to="/usb_cam1/image_raw" />
+      <remap from="image" to="$(arg image1)" />
     </node>
 
     <!-- Camera image_saver Node #2 -->
     <node pkg="image_view" type="image_saver" name="image_saver2" output="screen">
-      <param name="filename_format" value="$(find hugin_panorama)/images/cam2_%04i.png"/>
+      <param name="filename_format" value="$(arg images_path)/cam2_%04i.png"/>
       <param name="save_all_image" value="false"/>
       <!-- INPUT TOPICS -->
-      <remap from="image" to="/usb_cam2/image_raw" />
+      <remap from="image" to="$(arg image2)" />
     </node>
 
     <!-- Stitcher Node -->
     <node pkg="hugin_panorama" type="hugin_panorama" name="hugin_panorama" output="screen">
-      <param name="rate" value="3"/>
-      <!-- INPUT TOPICS -->
-      <remap from="heading" to="heading" />
-      <remap from="scale" to="scale" />
-      <remap from="camera/compressed" to="usb_cam/image_raw/compressed" />
+      <param name="images_path" value="$(arg images_path)"/>
       <!-- OUTPUT TOPICS -->
-      <remap from="overlay/compressed" to="overlay/compressed" />
+      <remap from="panorama/compressed" to="panorama/compressed" />
+    </node>
 
     <!-- Create panoramas in loop -->
-    </node>
     <node pkg="hugin_panorama" type="stitch_loop.py" name="stitch_loop" output="screen">
     </node>
 

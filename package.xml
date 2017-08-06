@@ -12,15 +12,19 @@
 
   <buildtool_depend>catkin</buildtool_depend>
   <build_depend>rospy</build_depend>
-  <build_depend>std_msgs</build_depend>
+  <build_depend>rospkg</build_depend>
+  <build_depend>std_srvs</build_depend>
   <build_depend>sensor_msgs</build_depend>
+  <build_depend>image_view</build_depend>
   <build_depend>cv_bridge</build_depend>
   <run_depend>rospy</run_depend>
-  <run_depend>std_msgs</run_depend>
+  <run_depend>rospkg</run_depend>
+  <run_depend>std_srvs</run_depend>
   <run_depend>sensor_msgs</run_depend>
+  <run_depend>image_view</run_depend>
   <run_depend>cv_bridge</run_depend>
-  <run_depend>python-numpy</run_depend>
   <run_depend>python-opencv</run_depend>
-  <run_depend>click</run_depend>
+  <run_depend>hugin-tools</run_depend>
+  <run_depend>enblend</run_depend>
 
 </package>

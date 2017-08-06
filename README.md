@@ -9,7 +9,7 @@ Panorama by [Senza Senso](https://www.flickr.com/photos/mesec/25814467750/) (cc)
 ## Installation
 
 ```
-$ sudo apt-get install ros-kinetic-hugin-panorama
+$ sudo apt-get install ros-kinetic-hugin-panorama hugin-tools enblend
 ```
 
 **Full documentation on wiki: [http://wiki.ros.org/hugin_panorama](http://wiki.ros.org/hugin_panorama)**
