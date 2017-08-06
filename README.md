@@ -2,7 +2,9 @@
 
 Create panoramas in ROS using image snapshots or multiple video streams.
 
-![hugin_panorama](http://wiki.ros.org/hugin_panorama?action=AttachFile&do=get&target=mars.png "mars")
+![hugin_panorama](http://wiki.ros.org/hugin_panorama?action=AttachFile&do=get&target=pano_by_senza_senso.JPG)
+
+Panorama by [Senza Senso](https://www.flickr.com/photos/mesec/25814467750/) (cc).
 
 ## Installation
 
