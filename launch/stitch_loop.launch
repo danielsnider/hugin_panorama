@@ -1,0 +1,38 @@
+<launch>
+  <env name="ROSCONSOLE_FORMAT" value="[${severity}][${thread}][${node}/${function}:${line}]: ${message}"/>
+
+  <group ns="hugin_panorama">
+
+    <!-- Camera image_saver Node #1 -->
+    <node pkg="image_view" type="image_saver" name="image_saver1" output="screen">
+      <param name="filename_format" value="$(find hugin_panorama)/images/cam1_%04i.png"/>
+      <param name="save_all_image" value="false"/>
+      <!-- INPUT TOPICS -->
+      <remap from="image" to="/usb_cam1/image_raw" />
+    </node>
+
+    <!-- Camera image_saver Node #2 -->
+    <node pkg="image_view" type="image_saver" name="image_saver2" output="screen">
+      <param name="filename_format" value="$(find hugin_panorama)/images/cam2_%04i.png"/>
+      <param name="save_all_image" value="false"/>
+      <!-- INPUT TOPICS -->
+      <remap from="image" to="/usb_cam2/image_raw" />
+    </node>
+
+    <!-- Stitcher Node -->
+    <node pkg="hugin_panorama" type="hugin_panorama" name="hugin_panorama" output="screen">
+      <param name="rate" value="3"/>
+      <!-- INPUT TOPICS -->
+      <remap from="heading" to="heading" />
+      <remap from="scale" to="scale" />
+      <remap from="camera/compressed" to="usb_cam/image_raw/compressed" />
+      <!-- OUTPUT TOPICS -->
+      <remap from="overlay/compressed" to="overlay/compressed" />
+
+    <!-- Create panoramas in loop -->
+    </node>
+    <node pkg="hugin_panorama" type="stitch_loop.py" name="stitch_loop" output="screen">
+    </node>
+
+  </group>
+</launch>

@@ -1,0 +1,6 @@
+*.pyc
+*.swp
+*.swo
+images/
+build_isolated/
+devel_isolated/
