@@ -116,7 +116,7 @@ class HuginPanorama():
     if out:
         rospy.loginfo("\n%s" % out)
     if err:
-        rospy.loginfo("\n%s" % err)
+        rospy.logerr("\n%s" % err)
     return out, err, sp.returncode
 
 def main():

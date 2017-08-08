@@ -5,7 +5,6 @@ project(hugin_panorama)
 find_package(catkin REQUIRED COMPONENTS
   sensor_msgs
   rospy
-  rospkg
   std_srvs
   cv_bridge
 )
@@ -14,7 +13,7 @@ catkin_python_setup()
 
 catkin_package(
   LIBRARIES ${PROJECT_NAME}
-  CATKIN_DEPENDS sensor_msgs rospy rospkg std_srvs cv_bridge
+  CATKIN_DEPENDS sensor_msgs rospy std_srvs cv_bridge
 )
 
 catkin_install_python(
